@@ -31,12 +31,11 @@ class Elevator():
         self.available = True
         return 1
 
-    def move(self, system):
+    def move(self, building):
         """Moves one floor in self.direction."""
-        # system.floors[self.floor].remove(self)
-        self.requests += 1
+        building.floors[self.floor].remove(self)
         self.floor += self.direction
-        # system.floors[self.floor].append(self)
+        building.floors[self.floor].append(self)
         print("On floor {}...".format(self.floor))
 
     def is_elevator_in_requests_floor(self, request_floor):
@@ -50,5 +49,12 @@ class Elevator():
 
     def is_available(self):
         return self.available
+
+    def set_direction(self, to_floor):
+        if self.floor < to_floor:
+            self.direction = 1
+        else:
+            self.direction = -1
+
 
 
