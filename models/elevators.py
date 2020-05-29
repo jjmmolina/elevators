@@ -11,7 +11,7 @@ DATE: 27/05/2020
 class Elevator():
     def __init__(self, id):
         self.id = id
-        self.floor = 1
+        self.floor = 0
         self.direction = None
         self.default_elevator = False
         self.available = True

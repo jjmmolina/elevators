@@ -25,7 +25,7 @@ class Building():
 
         self.elevators = [Elevator(i) for i in range(num_elevators)]
         self.floors = [[] for _ in range(num_floors+1)]
-        self.floors[1] = self.elevators[:]
+        self.floors[0] = self.elevators[:]
         self.elevators[0].default_elevator = True
 
     def __str__(self):
@@ -46,16 +46,26 @@ class Building():
         if floor >= len(self.floors):
             raise ValueError("Invalid floor {}, this building only has {} floors.".format(floor, len(self.floors) - 1))
 
+    def validate_direction(self, floor, direction):
+        # At each floor — except the first one and the last one, the request can be made in two directions.
+        if ((floor == 0) & (direction == -1)) | ((floor == len(self.floors)-1) & (direction == 1)):
+            raise ValueError("Invalid direction {} for floor {}.".format(direction, floor))
+
+    def validate_floor_elevator_direction(self, elevator, floor):
+        # It is not possible to choose a floor that goes in the opposite direction of the outside call
+        if ((elevator.direction == 1) & (floor < elevator.floor)) | ((elevator.direction == -1) & (floor > elevator.floor)):
+            raise ValueError("Invalid floor {}, this elevator goes to the other direction.".format(floor))
+
     def move_elevator(self, elevator, to_floor):
         """Send elevator to floor, moving one floor at a time."""
         self.validate_floor(to_floor)
+        if elevator.direction is not None:
+            self.validate_floor_elevator_direction(elevator, to_floor)
         print("Elevator {} moving".format(elevator.id))
         elevator.set_direction(to_floor)
 
-        # Build the range based on which direction we need to go
-        # We do this because range won't work if floor < elevator.floor
-        for _ in (range(elevator.floor, to_floor) if elevator.direction == 1
-        else range(elevator.floor, to_floor, -1)):
+        for _ in (range(elevator.floor, to_floor)
+        if elevator.direction == 1 else range(elevator.floor, to_floor, -1)):
             elevator.move(self)
             sleep(0.5)
 
@@ -76,10 +86,8 @@ class Building():
             if elevator.requests <= len(self.floors)/len(self.elevators):
                 return elevator
             else:
-                raise ("Not elevator available", "All elevators have answer more than {} requests.").format(len(self.floors)/len(self.elevators))
-
-
-
+                raise ("Not elevator available", "All elevators have answer more than {} requests.")\
+                    .format(len(self.floors)/len(self.elevators))
 
 
     def call_elevator(self, floor, direction):
@@ -88,6 +96,7 @@ class Building():
         Direction should indicate which way the user wants to travel, values should be 1 or -1."""
 
         self.validate_floor(floor)
+        self.validate_direction(floor, direction)
         if direction not in (1, -1):
             raise ValueError("direction only accepts 1 or -1, not {}".format(direction))
 

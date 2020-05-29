@@ -63,6 +63,7 @@ class BuildingTestCase(unittest.TestCase):
         # Nearest elevator arrives to floor 'from_floor"
         self.assertIsInstance(self.building.call_elevator(from_floor, direction), Elevator)
 
+
     def test_move_elevator(self):
         to_floor = 5
         elevator = self.building.elevators[0]
@@ -71,6 +72,25 @@ class BuildingTestCase(unittest.TestCase):
         to_floor = 6
         self.assertRaises(ValueError, self.building.move_elevator, elevator, to_floor)
 
+    def test_validate_floor_elevator_direction(self):
+        to_floor = 3
+        elevator = self.building.elevators[0]
+        elevator.floor = 4
+        elevator.direction = 1
+        self.assertRaises(ValueError, self.building.validate_floor_elevator_direction,elevator, to_floor)
+        to_floor = 5
+        self.assertEqual(None, self.building.validate_floor_elevator_direction(elevator, to_floor))
+
+    def test_validate_direction(self):
+        from_floor = 0
+        direction = -1
+        self.assertRaises(ValueError, self.building.validate_direction, from_floor, direction)
+        direction = 1
+        self.assertEqual(None, self.building.validate_direction(from_floor, direction))
+        from_floor = 5
+        self.assertRaises(ValueError, self.building.validate_direction, from_floor, direction)
+        direction = -1
+        self.assertEqual(None, self.building.validate_direction(from_floor, direction))
 
     def tearDown(self):
         pass
