@@ -1,4 +1,4 @@
-# elevators
+# Elevators
 Elevators exercise for Sewan recruitment process.
 ## Specifications
 The purpose of this exercise is to model an elevator cluster simulator in a building.
@@ -42,7 +42,6 @@ To install the dependencies execute the following command in a virtual python en
 The code is divided in classes (inside folder _models_). 
 - **File _building.py_** -> It includes the class **Building**, that represents a building with floors and elevators.
 - **File _elevators.py_** -> It includes the class **Elevators**, that represents an elevator.
-- **File _floors.py_** -> It includes the class **Floors**, that represents a floor.
 - **File _requests_elevators.py_** -> It includes the class **Requests_Elevators**, that represents a request.
 
 ## Functionalities implemented

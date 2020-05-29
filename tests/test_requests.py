@@ -92,5 +92,19 @@ class BuildingTestCase(unittest.TestCase):
         direction = -1
         self.assertEqual(None, self.building.validate_direction(from_floor, direction))
 
+    def test_add_request_elevators(self):
+        from_floor = 4
+        to_floor = 5
+        self.building.add_request(from_floor, to_floor)
+        self.assertEqual(1, len(self.building.requests))
+        from_floor = 4
+        to_floor = 1
+        self.building.add_request(from_floor, to_floor)
+        self.assertEqual(2, len(self.building.requests))
+        from_floor = 3
+        to_floor = 4
+        self.building.add_request(from_floor, to_floor)
+        self.assertEqual(3, len(self.building.requests))
+
     def tearDown(self):
-        pass
+        self.building = None
