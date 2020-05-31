@@ -15,8 +15,7 @@ class Elevator():
         self.floor = 0
         self.direction = None
         self.default_elevator = False
-        self.available = True
-        self.requests = 0
+        self.num_requests = 0
         self.passengers = 0
 
 
@@ -25,20 +24,14 @@ class Elevator():
         building.floors[self.floor].remove(self)
         self.floor += self.direction
         building.floors[self.floor].append(self)
-        print("On floor {}...".format(self.floor))
-        self.check_requests_elevators(building, self.floor)
-
-    def check_requests_elevators(self, building, floor):
-        for request in building.requests:
-            if (request.current_floor == floor) & (request.direction == self.direction):
-                building.floors.remove(request)
-                self.passengers += 1
-                self.requests_to_serve.append(request)
-
+        print("On floor {} with {} passengers".format(self.floor, self.passengers))
 
 
     def is_elevator_in_requests_floor(self, request_floor):
         return (request_floor == self.floor)
+
+    def set_default_elevator(self, default):
+        self.default_elevator = default
 
     def is_default_elevator(self):
         return self.default_elevator
@@ -46,11 +39,17 @@ class Elevator():
     def is_my_direction(self, direction):
         return self.direction == direction
 
-    def is_available(self):
-        return self.available
+    def is_available(self, floors, elevators):
+        # max = floors/elevators
+        # print("Maximo peticiones {}".format(max))
+        # print("Num peticiones actual {}".format(self.num_requests))
+        if (float(self.num_requests) < (floors / elevators)):
+            return True
+        return False
+
 
     def set_direction(self, to_floor):
-        if self.floor < to_floor:
+        if self.floor <= to_floor:
             self.direction = 1
         else:
             self.direction = -1

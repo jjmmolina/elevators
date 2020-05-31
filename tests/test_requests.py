@@ -7,7 +7,8 @@ AUTHOR: jesus
 DATE: 27/05/2020
 
 """
-
+import random
+import threading
 import unittest
 
 from models.building import Building
@@ -105,6 +106,57 @@ class BuildingTestCase(unittest.TestCase):
         to_floor = 4
         self.building.add_request(from_floor, to_floor)
         self.assertEqual(3, len(self.building.requests))
+
+    def test_move_passengers_sequentially(self):
+        for _ in range(10):
+            from_floor, to_floor = random.sample(range(len(self.building.floors)), 2)
+            request = Requests_Elevators(from_floor, to_floor)
+            print(request.__str__())
+            self.building.requests.append(request)
+        self.building.requests = sorted(self.building.requests, key=lambda request: request.current_floor)
+        for request in self.building.requests:
+            self.building.move_passengers(request.current_floor, request.next_floor)
+
+        self.assertEqual(0, len(self.building.requests))
+    def test_move_passengers(self):
+        for _ in range(6):
+            from_floor, to_floor = random.sample(range(len(self.building.floors)), 2)
+            request = Requests_Elevators(from_floor, to_floor)
+            print(request.__str__())
+            self.building.requests.append(request)
+        self.building.requests = sorted(self.building.requests, key=lambda request: request.current_floor)
+        for request in self.building.requests:
+            # t = threading.Thread(target=self.building.move_passengers, args=(request.current_floor, request.next_floor))
+            # t.start()
+            self.building.move_passengers(request.current_floor, request.next_floor)
+        self.assertEqual(0, len(self.building.requests))
+
+    def test_move_passenger_demo(self):
+        from_floor = 0
+        to_floor = 4
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 0
+        to_floor = 4
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 0
+        to_floor = 4
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 0
+        to_floor = 3
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 4
+        to_floor = 0
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 2
+        to_floor = 3
+        self.building.add_request(from_floor, to_floor)
+        from_floor = 2
+        to_floor = 3
+        self.building.add_request(from_floor, to_floor)
+        self.building.requests = sorted(self.building.requests, key=lambda request: request.current_floor)
+
+        self.building.move_passengers()
+        self.assertEqual(0, len(self.building.requests))
 
     def tearDown(self):
         self.building = None

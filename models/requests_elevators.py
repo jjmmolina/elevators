@@ -17,9 +17,11 @@ class Requests_Elevators():
         self.current_floor = current_floor
         self.next_floor = next_floor
         self.direction = self.calculate_direction(current_floor, next_floor)
+        self.is_served = False
+        self.passenger_inside = False
 
     def __str__(self):
-        return ('Request from floor {} to floor {}').format(self.current_floor, self.next_floor)
+        return ('Request number {} from floor {} to floor {}').format(self.order, self.current_floor, self.next_floor)
 
     def set_order(self, order):
         self.order = order

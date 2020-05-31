@@ -25,7 +25,6 @@ class Play:
     def generate_requests(self):
         for _ in range(self.requests):
             from_floor, to_floor = random.sample(range(self.floors), 2)
-            # to_floor = random.randrange(self.floors)
             request = Requests_Elevators(from_floor, to_floor)
             print(request.__str__())
             self.building.requests.append(request)
