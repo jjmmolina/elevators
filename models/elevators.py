@@ -14,7 +14,6 @@ class Elevator():
         self.id = id
         self.floor = 0
         self.direction = None
-        self.default_elevator = False
         self.num_requests = 0
         self.passengers = 0
 
@@ -30,23 +29,13 @@ class Elevator():
     def is_elevator_in_requests_floor(self, request_floor):
         return (request_floor == self.floor)
 
-    def set_default_elevator(self, default):
-        self.default_elevator = default
-
-    def is_default_elevator(self):
-        return self.default_elevator
-
     def is_my_direction(self, direction):
         return self.direction == direction
 
     def is_available(self, floors, elevators):
-        # max = floors/elevators
-        # print("Maximo peticiones {}".format(max))
-        # print("Num peticiones actual {}".format(self.num_requests))
-        if (float(self.num_requests) < (floors / elevators)):
+        if self.num_requests < int(floors / elevators):
             return True
         return False
-
 
     def set_direction(self, to_floor):
         if self.floor <= to_floor:

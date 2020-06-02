@@ -10,6 +10,7 @@ DATE: 28/05/2020
 import click
 import random
 from random import sample
+from time import sleep
 from models.building import Building
 from models.requests_elevators import Requests_Elevators
 
@@ -23,18 +24,20 @@ class Play:
         self.building = Building(self.floors, self.elevators)
 
     def generate_requests(self):
-        for _ in range(self.requests):
-            from_floor, to_floor = random.sample(range(self.floors), 2)
-            request = Requests_Elevators(from_floor, to_floor)
-            print(request.__str__())
-            self.building.requests.append(request)
+        from_floor, to_floor = random.sample(range(self.floors), 2)
+        request = Requests_Elevators(from_floor, to_floor)
+        print(request.__str__())
+        self.building.requests.append(request)
 
     def run(self):
         """This method is used to start. """
-
         print(self.building.__repr__())
         print(self.building.__str__())
-        self.generate_requests()
+
+        self.building.move_passengers()
+        while True:
+            self.generate_requests()
+            sleep(5)
 
 
 
