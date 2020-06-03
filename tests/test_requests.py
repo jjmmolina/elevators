@@ -20,7 +20,7 @@ class BuildingTestCase(unittest.TestCase):
     building = None
 
     def setUp(self):
-        self.building = Building(18, 2)
+        self.building = Building(5, 3)
 
     def test_get_elevator(self):
         direction = 1
@@ -34,21 +34,20 @@ class BuildingTestCase(unittest.TestCase):
         # Nearest elevator arrives to floor 'from_floor"
         self.assertIsInstance(self.building.call_elevator(from_floor, direction), Elevator)
 
-
     def test_move_elevator(self):
         to_floor = 5
         elevator = self.building.elevators[0]
         self.building.move_elevator(elevator, to_floor)
         self.assertEqual(to_floor, elevator.floor)
         to_floor = 6
-        self.assertRaises(ValueError, self.building.move_elevator, elevator, to_floor)
+        self.assertNotEqual(to_floor, elevator.floor)
 
     def test_validate_floor_elevator_direction(self):
         to_floor = 3
         elevator = self.building.elevators[0]
         elevator.floor = 4
         elevator.direction = 1
-        self.assertRaises(ValueError, self.building.validate_floor_elevator_direction,elevator, to_floor)
+        self.assertRaises(ValueError, self.building.validate_floor_elevator_direction, elevator, to_floor)
         to_floor = 5
         self.assertEqual(None, self.building.validate_floor_elevator_direction(elevator, to_floor))
 

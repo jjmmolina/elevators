@@ -54,14 +54,14 @@ class Building():
         if ((floor == 0) & (direction == -1)) | ((floor == len(self.floors) - 1) & (direction == 1)):
             raise ValueError("Invalid direction {} for floor {}.".format(direction, floor))
 
-    # def validate_floor_elevator_direction(self, elevator, floor):
-    #     if elevator.direction is None:
-    #         return True
-    #     # It is not possible to choose a floor that goes in the opposite direction of the outside call
-    #     if ((elevator.direction == 1) & (floor < elevator.floor)) | (
-    #             (elevator.direction == -1) & (floor > elevator.floor)):
-    #         raise ValueError(
-    #             "Invalid floor {}, this elevator goes to the other direction {}.".format(floor, elevator.direction))
+    def validate_floor_elevator_direction(self, elevator, floor):
+        if elevator.direction is None:
+            return True
+        # It is not possible to choose a floor that goes in the opposite direction of the outside call
+        if ((elevator.direction == 1) & (floor < elevator.floor)) | (
+                (elevator.direction == -1) & (floor > elevator.floor)):
+            raise ValueError(
+                "Invalid floor {}, this elevator goes to the other direction {}.".format(floor, elevator.direction))
 
     def move_elevator(self, elevator, to_floor):
         """Send elevator to floor, moving one floor at a time."""
@@ -69,7 +69,7 @@ class Building():
         # if elevator.direction is not None:
         #     self.validate_floor_elevator_direction(elevator, to_floor)
         print("Elevator {} moving with {} passengers.".format(elevator.id, elevator.passengers))
-        # elevator.set_direction(to_floor)
+        elevator.set_direction(to_floor)
 
         # Check if there are more passenger in the same floor in which begins the movement
         if elevator.is_available(len(self.floors), len(self.elevators)):
