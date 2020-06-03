@@ -55,9 +55,3 @@ def play(floors, elevators, requests):
 
 if __name__ == '__main__':
     play()
-
-
-    # # Outside calls
-    # elevator = building.call_elevator(from_floor, direction)
-    # # Inside calls
-    # building.move_elevator(elevator, to_floor)

@@ -7,9 +7,13 @@ AUTHOR: jesus
 DATE: 27/05/2020
 
 """
+import threading
+
 from models.elevators import Elevator
 from models.requests_elevators import Requests_Elevators
 from time import sleep
+from threading import Thread
+
 
 
 class Building():
@@ -25,7 +29,6 @@ class Building():
         self.elevators = [Elevator(i) for i in range(num_elevators)]
         self.floors = [[] for _ in range(num_floors + 1)]
         self.floors[0] = self.elevators[:]
-        self.elevators[0].default_elevator = True
         self.requests = []
 
     def __str__(self):
@@ -54,32 +57,26 @@ class Building():
         if ((floor == 0) & (direction == -1)) | ((floor == len(self.floors) - 1) & (direction == 1)):
             raise ValueError("Invalid direction {} for floor {}.".format(direction, floor))
 
-    # def validate_floor_elevator_direction(self, elevator, floor):
-    #     if elevator.direction is None:
-    #         return True
-    #     # It is not possible to choose a floor that goes in the opposite direction of the outside call
-    #     if ((elevator.direction == 1) & (floor < elevator.floor)) | (
-    #             (elevator.direction == -1) & (floor > elevator.floor)):
-    #         raise ValueError(
-    #             "Invalid floor {}, this elevator goes to the other direction {}.".format(floor, elevator.direction))
+    def validate_floor_elevator_direction(self, elevator, floor):
+        if elevator.direction is None:
+            return True
+        # It is not possible to choose a floor that goes in the opposite direction of the outside call
+        if ((elevator.direction == 1) & (floor < elevator.floor)) | (
+                (elevator.direction == -1) & (floor > elevator.floor)):
+            raise ValueError(
+                "Invalid floor {}, this elevator goes to the other direction {}.".format(floor, elevator.direction))
 
     def move_elevator(self, elevator, to_floor):
         """Send elevator to floor, moving one floor at a time."""
         self.validate_floor(to_floor)
-        # if elevator.direction is not None:
-        #     self.validate_floor_elevator_direction(elevator, to_floor)
+        if elevator.direction is not None:
+            self.validate_floor_elevator_direction(elevator, to_floor)
         print("Elevator {} moving with {} passengers.".format(elevator.id, elevator.passengers))
-        # elevator.set_direction(to_floor)
-
-        # Check if there are more passenger in the same floor in which begins the movement
-        if elevator.is_available(len(self.floors), len(self.elevators)):
-            self._check_requests_elevators(elevator, elevator.floor)
+        elevator.set_direction(to_floor)
 
         for _ in (range(elevator.floor, to_floor)
         if elevator.direction == 1 else range(elevator.floor, to_floor, -1)):
             elevator.move(self)
-            if elevator.is_available(len(self.floors), len(self.elevators)):
-                self._check_requests_elevators(elevator, elevator.floor)
             self._check_passengers_in_current_floor(elevator, elevator.floor)
 
         print("Elevator {} arrives to floor {}".format(elevator.id, to_floor))
@@ -88,22 +85,10 @@ class Building():
             elevator.direction = None
             return True
 
-    def _check_requests_elevators(self, elevator, floor):
-        for request in elevator.requests_to_serve:
-            if (elevator.is_available(len(self.floors), len(self.elevators))):
-                if (request.current_floor == floor) & (not request.is_served):
-                    print("**************************************")
-                    request.is_served = True
-                    request.passenger_inside = True
-                    elevator.passengers += 1
-                    # Elevator only stops if there is a passenger in this floor
-                    sleep(0.5)
-            else:
-                break
 
     def _check_passengers_in_current_floor(self, elevator, floor):
         for request in elevator.requests_to_serve:
-            if (request.next_floor == floor) & (request.passenger_inside):
+            if ((request.next_floor == floor) & (request.passenger_inside)):
                 request.passenger_inside = False
                 # Remove request in the list
                 new_request = []
@@ -113,22 +98,16 @@ class Building():
                 elevator.requests_to_serve = new_request
                 elevator.passengers -= 1
 
-    def get_elevator(self, elevators, direction):
-        # Get elevators travelling in the right direction
-        my_elevators = [elevator for elevator in elevators if elevator.direction == direction]
-        # If my_elevator is None, get default elevator
-        if len(my_elevators) is 0:
-            my_elevators = [elevator for elevator in elevators if elevator.direction is None]
 
-        my_elevators = sorted(my_elevators, key=lambda ele: ele.floor)
-        for elevator in my_elevators:
-            if (elevator.is_available(len(self.floors), len(self.elevators))):
-                elevator.direction = direction
-                return elevator
-            else:
-                print("Not elevator available", "All elevators have answer more than {} requests.".format(int(
-                    len(self.floors) / len(self.elevators))))
-                return None
+    def get_request(self, direction):
+        # Get request in the same direction
+        my_requests = [request for request in self.requests if request.direction == direction]
+        my_requests = sorted(my_requests, key=lambda ele: ele.current_floor)
+        if len(my_requests) == 0:
+            return None
+        else:
+            return my_requests[0]
+
 
     def call_elevator(self, floor, direction):
         """Chooses and returns an elevator after moving it to floor.
@@ -163,29 +142,8 @@ class Building():
         return elevator
 
     def move_passengers(self):
-        self.requests = sorted(self.requests, key=lambda request: request.timestamp)
-        for request in self.requests:
-            if request.is_served is False:
-                print("Request from floor {} to floor {}".format(request.current_floor, request.next_floor))
-                elevator = self.call_elevator(request.current_floor, request.direction)
-                if elevator is None:
-                    request.is_served = True
-                else:
-                    print("ELEVATOR NUMBER {} ARRIVES TO FLOOR {} TO GET ITS FIRST PASSENGER".format(elevator.id,
-                                                                                                 request.current_floor))
-                    # Elevator stops at this floor
-                    sleep(0.5)
-                    elevator.passengers += 1
-                    elevator.num_requests += 1
-                    elevator.requests_to_serve.append(request)
-                    # Remove request in the general list
-                    new_request = []
-                    for req in self.requests:
-                        if not req.is_served:
-                            new_request.append(req)
-                    self.requests = new_request
+        for elevator in self.elevators:
+            Thread(target=elevator.run, args=(self,)).start()
 
-                    request.is_served = True
-                    request.passenger_inside = True
-                    self.move_elevator(elevator, request.next_floor)
-        self.requests = []
+
+
