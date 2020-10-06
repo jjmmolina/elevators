@@ -1,5 +1,5 @@
 # Elevators
-Elevators exercise for Sewan recruitment process. 
+Elevators exercise for my current company recruitment process. 
 
 ## Specifications
 The purpose of this exercise is to model an elevator cluster simulator in a building.
